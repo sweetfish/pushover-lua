@@ -1,5 +1,6 @@
 -- Dependencies: LuaSocket and luasec ( https://github.com/brunoos/luasec/ )
-require("https")
+
+ssl = require "ssl.https"
 
 -- Usage: successbool, errstring = pushover( { a table with keys and values corresponding to pushover API } )
 function pushover( request )
@@ -13,13 +14,13 @@ function pushover( request )
 	data_str = table.concat(data_str, "&")
 	
 	-- send request
-	local res, code, headers, status = ssl.https.request(pushover_url, data_str)
+	local res, code, headers, status = ssl.request(pushover_url, data_str)
 
 	-- check for errors
 	if (code ~= 200) then
 		local errstr = "Error while sending request. Status code: " .. tostring(code) .. ", Body: " .. tostring(res)
 		return false, errstr
-	elseif (res ~= '{"status":1}') then
+	elseif not string.match(res,'"status":1') then
 		local errstr = "Error from pushover: " .. tostring(res)
 		return false, errstr
 	end
